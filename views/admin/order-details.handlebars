@@ -1,0 +1,55 @@
+{{> template/header1}}
+<h1>Order #{{order.id}}</h1>
+
+<div class="order-details">
+  <div class="customer-info">
+    <h2>Customer Information</h2>
+    <p><strong>Name:</strong> {{order.customer_name}}</p>
+    <p><strong>Email:</strong> {{order.email}}</p>
+    <p><strong>Phone:</strong> {{order.phone}}</p>
+    <p><strong>Delivery Date:</strong> {{formatDate order.delivery_date}}</p>
+    <p><strong>Special Instructions:</strong> {{order.message}}</p>
+  </div>
+  
+  <div class="order-items">
+    <h2>Order Items</h2>
+    <table class="admin-table">
+      <thead>
+        <tr>
+          <th>Cake</th>
+          <th>Quantity</th>
+          <th>Price</th>
+          <th>Total</th>
+        </tr>
+      </thead>
+      <tbody>
+        {{#each items}}
+          <tr>
+            <td>{{name}}</td>
+            <td>{{quantity}}</td>
+            <td>${{price}}</td>
+            <td>${{multiply price quantity}}</td>
+          </tr>
+        {{/each}}
+      </tbody>
+    </table>
+    
+    <div class="order-total">
+      <h3>Order Total: ${{calculateTotal items}}</h3>
+    </div>
+  </div>
+  
+  <div class="order-status">
+    <h2>Update Status</h2>
+    <form action="/admin/orders/update-status/{{order.id}}" method="POST">
+      <select name="status">
+        <option value="Pending" {{#eq order.status 'Pending'}}selected{{/eq}}>Pending</option>
+        <option value="Processing" {{#eq order.status 'Processing'}}selected{{/eq}}>Processing</option>
+        <option value="Completed" {{#eq order.status 'Completed'}}selected{{/eq}}>Completed</option>
+        <option value="Cancelled" {{#eq order.status 'Cancelled'}}selected{{/eq}}>Cancelled</option>
+      </select>
+      <button type="submit" class="btn">Update Status</button>
+    </form>
+  </div>
+</div>
+{{> template/footer1}}

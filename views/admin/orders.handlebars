@@ -1,0 +1,28 @@
+{{> template/header1}}
+<h1>Order Management</h1>
+
+<table class="admin-table">
+  <thead>
+    <tr>
+      <th>Order #</th>
+      <th>Customer</th>
+      <th>Date</th>
+      <th>Total</th>
+      <th>Status</th>
+      <th>Actions</th>
+    </tr>
+  </thead>
+  <tbody>
+    {{#each orders}}
+      <tr>
+        <td>#{{id}}</td>
+        <td>{{customer_name}}</td>
+        <td>{{formatDate created_at}}</td>
+        <td>${{total}}</td>
+        <td>{{status}}</td>
+        <td><a href="/admin/orders/view/{{id}}" class="btn-sm">View</a></td>
+      </tr>
+    {{/each}}
+  </tbody>
+</table>
+{{> template/footer1}}

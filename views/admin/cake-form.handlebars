@@ -1,0 +1,40 @@
+{{> template/header1}}
+
+<h1>{{#if cake}}Edit{{else}}Add{{/if}} Cake</h1>
+
+{{#if error}}
+  <div class="alert error">{{error}}</div>
+{{/if}}
+
+<form action="/admin/cakes/save" method="POST">
+  {{#if cake}}
+    <input type="hidden" name="id" value="{{cake.id}}">
+  {{/if}}
+  
+  <div class="form-group">
+    <label for="name">Name</label>
+    <input type="text" id="name" name="name" value="{{cake.name}}" required>
+  </div>
+  
+  <div class="form-group">
+    <label for="description">Description</label>
+    <textarea id="description" name="description" rows="3" required>{{cake.description}}</textarea>
+  </div>
+  
+  <div class="form-group">
+    <label for="price">Price</label>
+    <input type="number" id="price" name="price" step="0.01" value="{{cake.price}}" required>
+  </div>
+  
+  <div class="form-group">
+    <label for="image_url">Image URL</label>
+    <input type="url" id="image_url" name="image_url" value="{{cake.image_url}}" required>
+    {{#if cake.image_url}}
+      <img src="{{cake.image_url}}" alt="Preview" class="image-preview">
+    {{/if}}
+  </div>
+  
+  <button type="submit" class="btn">Save</button>
+  <a href="/admin/cakes" class="btn secondary">Cancel</a>
+</form>
+{{> template/footer1}}

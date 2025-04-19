@@ -1,0 +1,30 @@
+{{> template/header1}}
+<h1>Cake Management</h1>
+<a href="/admin/cakes/add" class="btn">Add New Cake</a>
+
+<table class="admin-table">
+  <thead>
+    <tr>
+      <th>Image</th>
+      <th>Name</th>
+      <th>Price</th>
+      <th>Actions</th>
+    </tr>
+  </thead>
+  <tbody>
+    {{#each cakes}}
+      <tr>
+        <td><img src="{{image_url}}" alt="{{name}}" class="cake-thumbnail"></td>
+        <td>{{name}}</td>
+        <td>${{price}}</td>
+        <td class="actions">
+          <a href="/admin/cakes/edit/{{id}}" class="btn-sm">Edit</a>
+          <form action="/admin/cakes/delete/{{id}}" method="POST" class="inline-form">
+            <button type="submit" class="btn-sm danger">Delete</button>
+          </form>
+        </td>
+      </tr>
+    {{/each}}
+  </tbody>
+</table>
+{{> template/footer1}}

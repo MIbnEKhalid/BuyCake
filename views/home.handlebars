@@ -1,0 +1,26 @@
+{{> template/header}}
+<section class="hero">
+  <h1>Custom Cakes for Every Occasion</h1>
+  <p>Handcrafted with love in our home kitchen</p>
+  <a href="/gallery" class="btn">View Our Creations</a>
+</section>
+
+<section class="featured">
+  <h2>Popular Cakes</h2>
+  <div class="cakes-grid">
+    {{#each cakes}}
+      <div class="cake-card">
+        <img src="{{image_url}}" alt="{{name}}" />
+        <h3>{{name}}</h3>
+        <p>{{description}}</p>
+        <span class="price">${{price}}</span>
+        <form class="add-to-cart-form" data-cake-id="{{id}}">
+          <input type="hidden" name="cakeId" value="{{id}}" />
+          <button type="submit" class="btn">Add to Cart</button>
+        </form>
+        <a href="/gallery/{{id}}" class="btn-secondary">View Details</a>
+      </div>
+    {{/each}}
+  </div>
+</section>
+{{> template/footer}}

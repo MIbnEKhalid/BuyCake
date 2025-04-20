@@ -1,5 +1,6 @@
 {{> template/header}}
-<section class="hero">
+
+<section class="hero" style="width: 100% !important; max-width: 100% !important;">
   <h1>Custom Cakes for Every Occasion</h1>
   <p>Handcrafted with love in our home kitchen</p>
   <a href="/gallery" class="btn">View Our Creations</a>
@@ -11,14 +12,14 @@
     {{#each cakes}}
       <div class="cake-card">
         <img src="{{image_url}}" alt="{{name}}" />
-        <h3>{{name}}</h3>
-        <p>{{description}}</p>
-        <span class="price">${{price}}</span>
-        <form class="add-to-cart-form" data-cake-id="{{id}}">
+          <h3>{{name}}</h3>
+          <p>{{description}}</p>
+          <span class="price">${{price}}</span>
+        <form style="bottom: 0;" class="add-to-cart-form" data-cake-id="{{id}}">
           <input type="hidden" name="cakeId" value="{{id}}" />
           <button type="submit" class="btn">Add to Cart</button>
+          <a href="/gallery/{{id}}" style="margin-top: 2px;" class="btn">View Details</a>
         </form>
-        <a href="/gallery/{{id}}" class="btn-secondary">View Details</a>
       </div>
     {{/each}}
   </div>

@@ -8,11 +8,11 @@
         <h3>{{name}}</h3>
         <p>{{description}}</p>
         <span class="price">${{price}}</span>
-        <form class="add-to-cart-form" data-cake-id="{{id}}">
+        <form style="bottom: 0;" class="add-to-cart-form" data-cake-id="{{id}}">
           <input type="hidden" name="cakeId" value="{{id}}" />
           <button type="submit" class="btn">Add to Cart</button>
+          <a href="/gallery/{{id}}" style="margin-top: 2px;" class="btn">View Details</a>
         </form>
-        <a href="/gallery/{{id}}" class="btn-secondary">View Details</a>
       </div>
     {{/each}}
   </div>

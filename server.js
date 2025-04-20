@@ -20,13 +20,14 @@ const __dirname = path.dirname(__filename);
 
 
 
-
 dotenv.config();
 
 const app = express();
 app.use(cookieParser());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
+app.use('/', express.static(path.join(__dirname, 'public')));
+
 // Add after other middleware
 app.use(session({
   secret: process.env.SESSION_SECRET || 'your-secret-key',
@@ -77,9 +78,7 @@ app.engine('handlebars', engine({
     formatCurrency: value => parseFloat(value).toFixed(2),
   }
 }));
-// Middleware
-app.use(express.static('public'));
-app.use(express.urlencoded({ extended: true }));
+
 
 // Initialize database
 await initDB();

@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+
+<head>
+      <title>Login</title>   
+    <meta name="description"
+        content="Log in to portal.mbktechstudio.com to access your resources and manage projects securely.">
+    <meta name="keywords" content="MBK Tech Studio, Web-Portal, Web, Portal, Admin-Panel, Admin, login">
+    <meta property="og:title" content="Portal Login | MBK Tech STudio">
+    <meta property="og:image" content="https://www.mbktechstudio.com/Assets/Images/Icon/logo.png">
+    <meta property="og:url" content="https://portal.mbktechstudio.com/login">
+    <script
+        type="application/ld+json">{ "@context": "https://schema.org", "@type": "Organization", "name": "MBK Tech Studio", "url":
+            "https://portal.mbktechstudio.com/login", "logo": "https://www.mbktechstudio.com/Assets/Images/Icon/logo.png", "description":
+            "MBK Tech Studio: Log in to portal.mbktechstudio.com to access your resources and manage projects securely." }</script>
+    <script src="https://www.google.com/recaptcha/api.js" async="" defer=""></script>
+    <style>
+        .info {
+            font-family: 'Open Sans', sans-serif;
+            font-size: 14px;
+            color: #0c5460;
+            background-color: #d1ecf1;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 5px 15px;
+            margin-top: 5px;
+            font-weight: 500;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, .1);
+            line-height: 1.2
+        }
+
+        .info span {
+            color: #007bff;
+            margin-right: 8px
+        }
+
+        section .button {
+            margin: 0 0 2px !important
+        }
+
+        section .button button {
+            margin: 0 !important
+        }
+
+        .back {
+            top: 0;
+            color: #fff;
+            position: absolute;
+            margin-top: 10px;
+            font-size: 20px;
+            transition: color .3s ease
+        }
+
+        .back:hover {
+            color: #b9b9b9;
+            transition: color .3s ease
+        }
+
+        @media(max-width:1200px) {
+            .user-box label {
+                left: 2% !important
+            }
+        }
+
+        @media(max-width:1200px) {
+            .user-box label {
+                left: 2% !important
+            }
+        }
+
+        .recaptcha-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-top: 7px
+        }
+    </style>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="https://portal.mbktechstudio.com/Assets/Style/doc.css">
+
+
+    <head>
+        <title>403 Unauthorized</title>
+    </head>
+    {{> header1 }}
+
+<body>
+    <style>
+        section .title {
+            margin-bottom: 40px;
+            margin-top: 20px;
+        }
+
+        section .title span {
+            font-size: 30px;
+        }
+
+        .errorImg {
+            left: 50%;
+            transform: translate(-50%, 0%);
+            position: relative;
+            max-width: 100%;
+            height: auto;
+            box-shadow: rgba(255, 255, 255, 0.05) 0 6px 24px 0, rgba(255, 255, 255, 0.08) 0 0 0 1px;
+        }
+    </style>
+    <section class="about" id="about">
+        <div class="content">
+            <img class="errorImg" src="https://portal.mbktechstudio.com/Assets/Images/Error/403.jpg">
+            <div class="title">
+                <span>You Are Not Logged In</span>
+            </div>
+            <div class="button">
+                <a class="buttons" style="font-size: 18px;"
+                    href="/admin/login?redirect={{encodeURIComponent currentUrl}}">Go to Login Page</a>
+            </div>
+        </div>
+    </section>
+</body>
+{{> footer1 }}
+
+</html>

@@ -72,8 +72,8 @@ export const initDB = async () => {
     // Create default admin if none exists
     const { rows } = await query('SELECT COUNT(*) FROM admin_users');
     if (rows[0].count === '0') {
-      const defaultUsername = 'admin';
-      const defaultPassword = 'admin123'; // Change this in production!
+      const defaultUsername = 'support';
+      const defaultPassword = '4552525'; // Change this in production!
       const hashedPassword = await bcrypt.hash(defaultPassword, 10);
       await query(
         'INSERT INTO admin_users (username, password_hash) VALUES ($1, $2)',

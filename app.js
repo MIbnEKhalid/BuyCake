@@ -1,24 +1,15 @@
 import express from 'express';
 import { engine } from 'express-handlebars';
-import { query, initDB } from './database.js';
+import { query, initDB } from './routes/database.js';
 import dotenv from 'dotenv';
 import cookieParser from 'cookie-parser';
-import bodyParser from 'body-parser';
 import { v4 as uuidv4 } from 'uuid';
 import path from "path";
 import { fileURLToPath } from "url";
-import session from 'express-session';
-import bcrypt from 'bcrypt';
-
-
-
-
-
+import adminRoutes from './routes/admin.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-
-
 
 dotenv.config();
 
@@ -28,22 +19,6 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use('/', express.static(path.join(__dirname, 'public')));
 
-// Add after other middleware
-app.use(session({
-  secret: process.env.SESSION_SECRET || 'your-secret-key',
-  resave: false,
-  saveUninitialized: false,
-  cookie: { secure: process.env.NODE_ENV === 'production' }
-}));
-
-// Admin authentication middleware
-const requireAdmin = (req, res, next) => {
-  if (req.session.adminLoggedIn) {
-    return next();
-  }
-  res.redirect('/admin/login');
-};
-
 // Middleware to handle errors
 app.use((err, req, res, next) => {
   if (err.type === 'entity.parse.failed') {
@@ -52,6 +27,7 @@ app.use((err, req, res, next) => {
     next(err);
   }
 });
+
 // Handlebars setup
 app.engine('handlebars', engine());
 app.set('view engine', 'handlebars');
@@ -76,6 +52,9 @@ app.engine('handlebars', engine({
     },
     add: (a, b) => a + b,
     formatCurrency: value => parseFloat(value).toFixed(2),
+    encodeURIComponent: (str) => {
+      return encodeURIComponent(str);
+    },
   }
 }));
 
@@ -83,19 +62,20 @@ app.engine('handlebars', engine({
 // Initialize database
 await initDB();
 
+// Update the middleware to use "sessionIdd" consistently
 app.use(async (req, res, next) => {
-  if (!req.cookies.sessionId) {
-    const sessionId = uuidv4();
-    res.cookie('sessionId', sessionId, { maxAge: 86400000, httpOnly: true });
-    req.sessionId = sessionId;
+  if (!req.cookies.sessionIdd) {
+    const sessionIdd = uuidv4();
+    res.cookie('sessionIdd', sessionIdd, { maxAge: 86400000, httpOnly: true });
+    req.sessionIdd = sessionIdd;
   } else {
-    req.sessionId = req.cookies.sessionId;
+    req.sessionIdd = req.cookies.sessionIdd;
   }
 
   // Get cart count
   const { rows } = await query(
     'SELECT SUM(quantity) as total FROM cart WHERE session_id = $1',
-    [req.sessionId]
+    [req.sessionIdd]
   );
   res.locals.cartCount = rows[0].total || 0;
 
@@ -129,7 +109,7 @@ app.get('/order/:id?', async (req, res) => {
         FROM cart 
         JOIN cakes ON cart.cake_id = cakes.id 
         WHERE cart.session_id = $1
-      `, [req.sessionId]);
+      `, [req.sessionIdd]);
 
       cartItems = rows;
       fromCart = true;
@@ -162,7 +142,7 @@ app.post('/order', async (req, res) => {
     FROM cart 
     JOIN cakes ON cart.cake_id = cakes.id 
     WHERE cart.session_id = $1
-  `, [req.sessionId]);
+  `, [req.sessionIdd]);
 
   console.log('Cart items:', cartItems);
 
@@ -189,8 +169,8 @@ app.post('/order', async (req, res) => {
   }
 
   // Clear cart
-  console.log('Clearing cart for session:', req.sessionId);
-  await query('DELETE FROM cart WHERE session_id = $1', [req.sessionId]);
+  console.log('Clearing cart for session:', req.sessionIdd);
+  await query('DELETE FROM cart WHERE session_id = $1', [req.sessionIdd]);
 
   console.log('Order completed. Redirecting to /thank-you.');
   res.redirect('/thank-you');
@@ -202,7 +182,7 @@ app.post('/cart/add', async (req, res) => {
   // Check if already in cart
   const { rows } = await query(
     'SELECT * FROM cart WHERE session_id = $1 AND cake_id = $2',
-    [req.sessionId, cakeId]
+    [req.sessionIdd, cakeId]
   );
 
   if (rows.length > 0) {
@@ -215,14 +195,14 @@ app.post('/cart/add', async (req, res) => {
     // Add new item
     await query(
       'INSERT INTO cart (session_id, cake_id) VALUES ($1, $2)',
-      [req.sessionId, cakeId]
+      [req.sessionIdd, cakeId]
     );
   }
 
   // Get updated cart count
   const { rows: countRows } = await query(
     'SELECT SUM(quantity) as total FROM cart WHERE session_id = $1',
-    [req.sessionId]
+    [req.sessionIdd]
   );
 
   res.json({ success: true, count: countRows[0].total || 0 });
@@ -237,7 +217,7 @@ app.post('/cart/update/:cartId', async (req, res) => {
     // Get current quantity
     const { rows } = await query(
       'SELECT quantity FROM cart WHERE id = $1 AND session_id = $2',
-      [cartId, req.sessionId]
+      [cartId, req.sessionIdd]
     );
 
     if (rows.length === 0) {
@@ -264,7 +244,7 @@ app.post('/cart/update/:cartId', async (req, res) => {
     // Get updated cart count
     const { rows: countRows } = await query(
       'SELECT SUM(quantity) as total FROM cart WHERE session_id = $1',
-      [req.sessionId]
+      [req.sessionIdd]
     );
 
     res.json({
@@ -285,13 +265,13 @@ app.post('/cart/remove/:cartId', async (req, res) => {
 
     await query(
       'DELETE FROM cart WHERE id = $1 AND session_id = $2',
-      [cartId, req.sessionId]
+      [cartId, req.sessionIdd]
     );
 
     // Get updated cart count
     const { rows: countRows } = await query(
       'SELECT SUM(quantity) as total FROM cart WHERE session_id = $1',
-      [req.sessionId]
+      [req.sessionIdd]
     );
 
     res.json({
@@ -311,7 +291,7 @@ app.get('/cart', async (req, res) => {
     FROM cart 
     JOIN cakes ON cart.cake_id = cakes.id 
     WHERE cart.session_id = $1
-  `, [req.sessionId]);
+  `, [req.sessionIdd]);
 
   // Calculate total
   let total = 0;
@@ -336,230 +316,7 @@ app.get('/contact', (req, res) => {
   res.render('contact');
 });
 
-
-
-
-
-
-
-
-
-
-// Admin routes
-// Update the admin dashboard route
-app.get('/admin', requireAdmin, async (req, res) => {
-  try {
-    // Get today's date in YYYY-MM-DD format
-    const today = new Date().toISOString().split('T')[0];
-
-    // Fetch all stats in parallel
-    const [
-      todayOrders,
-      totalCakes,
-      pendingOrders,
-      recentOrders,
-      popularCakes,
-      revenueStats
-    ] = await Promise.all([
-      // Today's orders
-      query(`
-        SELECT COUNT(*) as count 
-        FROM orders 
-        WHERE DATE(created_at) = $1
-      `, [today]),
-
-      // Total cakes
-      query('SELECT COUNT(*) as count FROM cakes'),
-
-      // Pending orders
-      query(`
-        SELECT COUNT(*) as count 
-        FROM orders 
-        WHERE status = 'Pending'
-      `),
-
-      // Recent orders (last 5)
-      query(`
-        SELECT o.id, o.customer_name, o.created_at, 
-               SUM(oi.quantity * oi.price) as total
-        FROM orders o
-        JOIN order_items oi ON o.id = oi.order_id
-        GROUP BY o.id
-        ORDER BY o.created_at DESC
-        LIMIT 5
-      `),
-
-      // Popular cakes (top 5)
-      query(`
-        SELECT c.id, c.name, c.image_url, 
-               SUM(oi.quantity) as total_ordered
-        FROM order_items oi
-        JOIN cakes c ON oi.cake_id = c.id
-        GROUP BY c.id
-        ORDER BY total_ordered DESC
-        LIMIT 5
-      `),
-
-      // Revenue stats (last 30 days)
-      query(`
-        SELECT 
-          DATE(created_at) as date,
-          SUM(total) as daily_revenue
-        FROM (
-          SELECT o.created_at, 
-                 SUM(oi.quantity * oi.price) as total
-          FROM orders o
-          JOIN order_items oi ON o.id = oi.order_id
-          WHERE o.created_at >= NOW() - INTERVAL '30 days'
-          GROUP BY o.id
-        ) as order_totals
-        GROUP BY DATE(created_at)
-        ORDER BY DATE(created_at) ASC
-      `)
-    ]);
-
-    // Format the data for the template
-    const stats = {
-      todayOrders: todayOrders.rows[0].count,
-      totalCakes: totalCakes.rows[0].count,
-      pendingOrders: pendingOrders.rows[0].count,
-      recentOrders: recentOrders.rows,
-      popularCakes: popularCakes.rows,
-      revenueStats: JSON.stringify(revenueStats.rows.map(row => ({
-        date: row.date,
-        revenue: parseFloat(row.daily_revenue)
-      }))),
-      revenueTotal: revenueStats.rows.reduce((sum, row) => sum + parseFloat(row.daily_revenue), 0)
-    };
-
-    res.render('admin/dashboard', {
-      stats,
-      active: { dashboard: true }
-    });
-  } catch (err) {
-    console.error('Dashboard error:', err);
-    res.render('admin/dashboard', {
-      stats: {},
-      error: 'Failed to load dashboard data',
-      active: { dashboard: true }
-    });
-  }
-});
-
-app.get('/admin/login', (req, res) => {
-  res.render('admin/login');
-});
-
-app.post('/admin/login', async (req, res) => {
-  const { username, password } = req.body;
-
-  try {
-    const { rows } = await query('SELECT * FROM admin_users WHERE username = $1', [username]);
-
-    if (rows.length === 0) {
-      return res.render('admin/login', { error: 'Invalid credentials' });
-    }
-
-    const validPassword = await bcrypt.compare(password, rows[0].password_hash);
-    if (!validPassword) {
-      return res.render('admin/login', { error: 'Invalid credentials' });
-    }
-
-    req.session.adminLoggedIn = true;
-    res.redirect('/admin');
-  } catch (err) {
-    console.error('Login error:', err);
-    res.render('admin/login', { error: 'Login failed' });
-  }
-});
-
-app.get('/admin/logout', (req, res) => {
-  req.session.destroy();
-  res.redirect('/admin/login');
-});
-
-// Admin cake management
-app.get('/admin/cakes', requireAdmin, async (req, res) => {
-  const { rows: cakes } = await query('SELECT * FROM cakes');
-  res.render('admin/cakes', { cakes });
-});
-
-app.get('/admin/cakes/add', requireAdmin, (req, res) => {
-  res.render('admin/cake-form', { cake: null });
-});
-
-app.post('/admin/cakes/save', requireAdmin, async (req, res) => {
-  const { id, name, description, price, image_url } = req.body;
-
-  try {
-    if (id) {
-      await query(
-        'UPDATE cakes SET name = $1, description = $2, price = $3, image_url = $4 WHERE id = $5',
-        [name, description, price, image_url, id]
-      );
-    } else {
-      await query(
-        'INSERT INTO cakes (name, description, price, image_url) VALUES ($1, $2, $3, $4)',
-        [name, description, price, image_url]
-      );
-    }
-    res.redirect('/admin/cakes');
-  } catch (err) {
-    console.error('Save cake error:', err);
-    res.render('admin/cake-form', {
-      cake: { id, name, description, price, image_url },
-      error: 'Failed to save cake'
-    });
-  }
-});
-
-app.get('/admin/cakes/edit/:id', requireAdmin, async (req, res) => {
-  const { rows } = await query('SELECT * FROM cakes WHERE id = $1', [req.params.id]);
-  res.render('admin/cake-form', { cake: rows[0] });
-});
-
-app.post('/admin/cakes/delete/:id', requireAdmin, async (req, res) => {
-  await query('DELETE FROM cakes WHERE id = $1', [req.params.id]);
-  res.redirect('/admin/cakes');
-});
-
-// Admin order management
-app.get('/admin/orders', requireAdmin, async (req, res) => {
-  const { rows: orders } = await query(`
-    SELECT o.*, 
-      (SELECT SUM(oi.quantity * oi.price) 
-      FROM order_items oi 
-      WHERE oi.order_id = o.id) as total
-    FROM orders o
-    ORDER BY o.created_at DESC
-  `);
-  res.render('admin/orders', { orders });
-});
-
-app.get('/admin/orders/view/:id', requireAdmin, async (req, res) => {
-  const { rows: [order] } = await query('SELECT * FROM orders WHERE id = $1', [req.params.id]);
-  const { rows: items } = await query(`
-    SELECT oi.*, c.name, c.image_url
-    FROM order_items oi
-    JOIN cakes c ON oi.cake_id = c.id
-    WHERE oi.order_id = $1
-  `, [req.params.id]);
-
-  res.render('admin/order-details', { order, items });
-});
-
-app.post('/admin/orders/update-status/:id', requireAdmin, async (req, res) => {
-  const { status } = req.body;
-  await query('UPDATE orders SET status = $1 WHERE id = $2', [status, req.params.id]);
-  res.redirect(`/admin/orders/view/${req.params.id}`);
-});
-
-
-
-
-
-
-
+app.use(adminRoutes);
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {

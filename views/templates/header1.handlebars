@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel - Sweet Creations</title>
+    <link rel="stylesheet" href="/admin.css">
+    <script src="https://portal.mbktechstudio.com/Assets/Scripts/logout.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+
+</head>
+
+<body>
+    <div class="admin-container">
+        <aside class="admin-sidebar">
+            <h2>Admin Panel</h2>
+            <nav>
+                <ul>
+                    <li><a href="/admin" class="{{#if active.dashboard}}active{{/if}}">Dashboard</a></li>
+                    <li><a href="/admin/cakes" class="{{#if active.cakes}}active{{/if}}">Cakes</a></li>
+                    <li><a href="/admin/orders" class="{{#if active.orders}}active{{/if}}">Orders</a></li>
+                    <li><a onclick="logout()">Logout</a></li>
+                </ul>
+            </nav>
+        </aside>
+        <div class="showMessageblurWindow">
+            <div class="showmessageWindow">
+                <h1></h1>
+                <p></p>
+                <button class="buttons full" style="font-size: 20px;margin-top: 10px;"
+                    onclick="hideMessage()">Okay</button>
+            </div>
+        </div>
+        <script>
+            function showMessage(message, heading) {
+                document.querySelector(".showmessageWindow h1").innerText = heading;
+                document.querySelector(".showmessageWindow p").innerHTML = message;
+                document
+                    .querySelector(".showMessageblurWindow")
+                    .classList
+                    .add("active");
+                document
+                    .body
+                    .classList
+                    .add("blur-active");
+            }
+            function hideMessage() {
+                const blurWindow = document.querySelector(".showMessageblurWindow");
+                blurWindow.classList.add("fade-out");
+                setTimeout(() => {
+                    blurWindow.classList.remove("active", "fade-out");
+                    document
+                        .body
+                        .classList
+                        .remove("blur-active");
+                }, 500);
+            }
+        </script>
+        <style>
+            .showMessageblurWindow {
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0, 0, 0, 0.5);
+                display: none;
+                justify-content: center;
+                align-items: center;
+                z-index: 1000;
+                backdrop-filter: blur(5px);
+            }
+
+            .showMessageblurWindow.active {
+                display: flex;
+            }
+
+            .showMessageblurWindow.fade-out {
+                animation: fadeOut 0.5s ease-in-out forwards;
+            }
+
+            body.blur-active {
+                overflow: hidden;
+            }
+
+            .showmessageWindow {
+                font-family: 'Roboto', sans-serif;
+                background: linear-gradient(135deg, #000, #111);
+                padding: 20px 30px;
+                border-radius: 15px;
+                box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
+                max-width: 90%;
+                width: 600px;
+                position: relative;
+                color: #fff;
+                border: 2px solid #007bff;
+                animation: fadeIn 0.5s ease-in-out;
+            }
+
+            .showmessageWindow h1 {
+                font-family: 'Roboto', sans-serif;
+                margin-top: 0;
+                font-size: 30px;
+                text-align: center;
+                color: #fff;
+                text-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+                margin-bottom: 10px;
+            }
+
+            .showmessageWindow p {
+                font-family: 'Roboto', sans-serif;
+                font-size: 18px;
+                text-align: center;
+                color: #ddd;
+            }
+
+            .showmessageWindow .close-btn {
+                position: absolute;
+                top: 10px;
+                right: 10px;
+                background: none;
+                border: none;
+                font-size: 30px;
+                cursor: pointer;
+                color: #bbb;
+                transition: color 0.3s;
+            }
+
+            .showmessageWindow .close-btn:hover {
+                color: #fff;
+            }
+
+            @keyframes fadeIn {
+                from {
+                    opacity: 0;
+                    transform: scale(0.9);
+                }
+
+                to {
+                    opacity: 1;
+                    transform: scale(1);
+                }
+            }
+
+            @keyframes fadeOut {
+                from {
+                    opacity: 1;
+                    transform: scale(1);
+                }
+
+                to {
+                    opacity: 0;
+                    transform: scale(0.9);
+                }
+            }
+        </style>
+        <main class="admin-main">

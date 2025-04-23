@@ -19,7 +19,6 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use('/', express.static(path.join(__dirname, 'public')));
 
-// Middleware to handle errors
 app.use((err, req, res, next) => {
   if (err.type === 'entity.parse.failed') {
     res.status(400).send({ error: 'Invalid request body' });
@@ -28,7 +27,6 @@ app.use((err, req, res, next) => {
   }
 });
 
-// Handlebars setup
 app.engine('handlebars', engine());
 app.set('view engine', 'handlebars');
 app.set('views', './views');
@@ -58,11 +56,8 @@ app.engine('handlebars', engine({
   }
 }));
 
-
-// Initialize database
 await initDB();
 
-// Update the middleware to use "sessionIdd" consistently
 app.use(async (req, res, next) => {
   if (!req.cookies.sessionIdd) {
     const sessionIdd = uuidv4();
@@ -84,12 +79,12 @@ app.use(async (req, res, next) => {
 
 app.get('/', async (req, res) => {
   const { rows: cakes } = await query('SELECT * FROM cakes LIMIT 4');
-  res.render('home', { cakes });
+  res.render('main/home.handlebars', { cakes });
 });
 
 app.get('/gallery', async (req, res) => {
   const { rows: cakes } = await query('SELECT * FROM cakes');
-  res.render('gallery', { cakes });
+  res.render('main/gallery.handlebars', { cakes });
 });
 
 app.get('/order/:id?', async (req, res) => {
@@ -119,7 +114,7 @@ app.get('/order/:id?', async (req, res) => {
       }
     }
 
-    res.render('order', {
+    res.render('main/order.handlebars', {
       cake,
       cartItems,
       fromCart,
@@ -208,7 +203,6 @@ app.post('/cart/add', async (req, res) => {
   res.json({ success: true, count: countRows[0].total || 0 });
 });
 
-// Update cart quantity
 app.post('/cart/update/:cartId', async (req, res) => {
   try {
     const { action } = req.body;
@@ -258,7 +252,6 @@ app.post('/cart/update/:cartId', async (req, res) => {
   }
 });
 
-// Remove item from cart
 app.post('/cart/remove/:cartId', async (req, res) => {
   try {
     const { cartId } = req.params;
@@ -284,7 +277,6 @@ app.post('/cart/remove/:cartId', async (req, res) => {
   }
 });
 
-
 app.get('/cart', async (req, res) => {
   const { rows: cartItems } = await query(`
     SELECT cart.id as cart_id, cart.quantity, cakes.* 
@@ -299,21 +291,19 @@ app.get('/cart', async (req, res) => {
     total += item.price * item.quantity;
   });
 
-  res.render('cart', { cartItems, total });
+  res.render('main/cart.handlebars', { cartItems, total });
 });
 
 app.get('/about', (req, res) => {
-  res.render('about');
+  res.render('main/about.handlebars');
 });
 
-
-// Add thank-you route
 app.get('/thank-you', (req, res) => {
-  res.render('thank-you');
+  res.render('main/thank-you.handlebars');
 });
 
 app.get('/contact', (req, res) => {
-  res.render('contact');
+  res.render('main/contact.handlebars');
 });
 
 app.use(adminRoutes);

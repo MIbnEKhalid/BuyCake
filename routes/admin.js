@@ -149,11 +149,11 @@ app.get('/admin/logout', (req, res) => {
 // Admin cake management
 app.get('/admin/cakes', validateSessionAndRole("Any"), async (req, res) => {
     const { rows: cakes } = await query('SELECT * FROM cakes');
-    res.render('admin/cakes', { cakes });
+    res.render('admin/cakes', { cakes, active: { cakes: true } });
 });
 
 app.get('/admin/cakes/add', validateSessionAndRole("Any"), (req, res) => {
-    res.render('admin/cake-form', { cake: null });
+    res.render('admin/cake-form', { cake: null, active: { cakes: true } });
 });
 
 app.post('/admin/cakes/save', validateSessionAndRole("Any"), async (req, res) => {
@@ -183,7 +183,7 @@ app.post('/admin/cakes/save', validateSessionAndRole("Any"), async (req, res) =>
 
 app.get('/admin/cakes/edit/:id', validateSessionAndRole("Any"), async (req, res) => {
     const { rows } = await query('SELECT * FROM cakes WHERE id = $1', [req.params.id]);
-    res.render('admin/cake-form', { cake: rows[0] });
+    res.render('admin/cake-form', { cake: rows[0], active: { cakes: true }  });
 });
 
 app.post('/admin/cakes/delete/:id', validateSessionAndRole("Any"), async (req, res) => {
@@ -201,7 +201,7 @@ app.get('/admin/orders', validateSessionAndRole("Any"), async (req, res) => {
       FROM orders o
       ORDER BY o.created_at DESC
     `);
-    res.render('admin/orders', { orders });
+    res.render('admin/orders', { orders, active: { orders: true }  });
 });
 
 app.get('/admin/orders/view/:id', validateSessionAndRole("Any"), async (req, res) => {
@@ -213,7 +213,7 @@ app.get('/admin/orders/view/:id', validateSessionAndRole("Any"), async (req, res
       WHERE oi.order_id = $1
     `, [req.params.id]);
 
-    res.render('admin/order-details', { order, items });
+    res.render('admin/order-details', { order, items, active: { orders: true } });
 });
 
 app.post('/admin/orders/update-status/:id', validateSessionAndRole("Any"), async (req, res) => {

@@ -41,15 +41,43 @@
   
   <div class="order-status">
     <h2>Update Status</h2>
-    <form action="/admin/orders/update-status/{{order.id}}" method="POST">
-      <select name="status">
-        <option value="Pending" {{#eq order.status 'Pending'}}selected{{/eq}}>Pending</option>
-        <option value="Processing" {{#eq order.status 'Processing'}}selected{{/eq}}>Processing</option>
-        <option value="Completed" {{#eq order.status 'Completed'}}selected{{/eq}}>Completed</option>
-        <option value="Cancelled" {{#eq order.status 'Cancelled'}}selected{{/eq}}>Cancelled</option>
+    <form id="update-status-form" action="/admin/orders/update-status/{{order.id}}" method="POST">
+      <select name="status" id="status-select">
+      <option value="Pending" {{#eq order.status 'Pending'}}selected{{/eq}}>Pending</option>
+      <option value="Processing" {{#eq order.status 'Processing'}}selected{{/eq}}>Processing</option>
+      <option value="Completed" {{#eq order.status 'Completed'}}selected{{/eq}}>Completed</option>
+      <option value="Cancelled" {{#eq order.status 'Cancelled'}}selected{{/eq}}>Cancelled</option>
       </select>
-      <button type="submit" class="btn">Update Status</button>
+      <button type="button" class="btn" id="update-status-btn">Update Status</button>
     </form>
+
+    <script>
+      document.getElementById('update-status-btn').addEventListener('click', function () {
+      const selectedStatus = document.getElementById('status-select').value;
+      if (confirm(`Are you sure you want to update the status to "${selectedStatus}"?`)) {
+        fetch(`/admin/orders/update-status/{{order.id}}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ status: selectedStatus }),
+        })
+        .then(response => {
+        if (response.ok) {
+          alert('Status updated successfully!');
+          location.reload();
+        } else {
+          alert('Failed to update status. Please try again.');
+        }
+        })
+        .catch(error => {
+        console.error('Error:', error);
+        alert('An error occurred. Please try again.');
+        });
+      }
+      });
+    </script>
+    
   </div>
 </div>
 {{> templates/footer1}}

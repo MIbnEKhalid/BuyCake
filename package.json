@@ -14,7 +14,7 @@
     "express": "^4.18.2",
     "express-handlebars": "^7.1.2",
     "express-session": "^1.18.1",
-    "mbkauthe": "^1.0.26",
+    "mbkauthe": "latest",
     "pg": "^8.11.3",
     "uuid": "^11.1.0"
   },
